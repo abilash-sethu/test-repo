@@ -1,0 +1,32 @@
+version: "3.1"
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus-sc
+    volumes:
+      - ./prometheus-config/:/etc/prometheus/
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+    ports:
+      - 9090:9090
+    restart: always
+
+
+#https://grafana.com/grafana/dashboards/11378-justai-system-monitor/
+#https://grafana.com/grafana/dashboards/13694-jvm-actuator/
+  grafana:
+    image: grafana/grafana
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    labels:
+      org.label-schema.group: "monitoring"
+    container_name: grafana-sc
